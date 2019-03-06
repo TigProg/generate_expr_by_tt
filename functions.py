@@ -5,22 +5,25 @@ from pyeda.boolalg.expr import _LITS
 
 
 def _ast_to_str(ast):
+    """Recursive unfolding of AST in pseudographics"""
     if ast[0] == 'const':
         return str(ast[1])
     elif ast[0] == 'lit':
         return str(_LITS[ast[1]])
     elif ast[0] in ('and', 'or'):
-        sep = ' /\ ' if ast[0] == 'and' else ' \/ '
+        sep = ' /\\ ' if ast[0] == 'and' else ' \\/ '  # TODO: fix
         return '(' + sep.join([_ast_to_str(items) for items in ast[1:]]) + ')'
     else:
         assert False, 'some error while building the pseudo'
 
 
 def _expr_to_pseudo(expr):
+    """Get representation of the expression in pseudographics"""
     return _ast_to_str(expr.to_ast())
 
 
 def args_to_int(args):
+    """Encoding a string from truth table by integer"""
     res = 0
     for i in reversed(args):
         res = (res << 1) | int(i)
@@ -28,6 +31,7 @@ def args_to_int(args):
 
 
 def _csv_body_to_result_cols(rows, f_count):
+    """Get full truth table body"""
     n_args = len(rows[0]) - f_count
     rows = list(set(rows))  # remove duplicates
 
@@ -54,6 +58,7 @@ def _csv_body_to_result_cols(rows, f_count):
 
 
 def _csv_header_to_vars(row, user_f_count):
+    """Get variable names"""
     if user_f_count is not None:
         if not user_f_count or user_f_count >= len(row):
             raise ValueError("Invalid value of 'function_count'")
@@ -73,6 +78,7 @@ def _csv_header_to_vars(row, user_f_count):
 
 
 def _csv_to_truthtables(csv_path, user_f_count):
+    """Get truth table in pyeda format from csv file"""
     with open(csv_path) as file:
         csv_file = csv_reader(file)
         rows = [tuple(row) for row in csv_file]
